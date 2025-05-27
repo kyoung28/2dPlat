@@ -1,12 +1,10 @@
-
-using Unity.VisualScripting;
-using UnityEngine.InputSystem;
-using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
 public class PlayerInput : MonoBehaviour
 {
     private Rigidbody2D rb;
@@ -18,36 +16,35 @@ public class PlayerInput : MonoBehaviour
     //[SerializeField] private Animator animator;
     private Animator animator;
     // Don't add facingRight immediately; try to see if people think of the naive way first
-private bool facingRight = true;
+    private bool facingRight = true;
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }
-    void OnMove(InputValue value)
+    private void OnMove(InputValue value)
     {
-        movement = value.Get<float>();
+        Vector2 input = value.Get<Vector2>(); //  Correct type
+        movement = input.x;                   // only interested in left/right movement
         Debug.Log(movement);
-        // These get added after Flip();
-        if (movement < 0 && facingRight == true)
-        {
+
+        if (movement < 0 && facingRight)
             Flip();
-        }
-        if (movement > 0 && facingRight == false)
-        {
+        else if (movement > 0 && !facingRight)
             Flip();
-        }
     }
+
     void Update()
     {
         Move(movement);
-        animator.SetFloat("Speed", Mathf.Abs(speed * movement));
+        animator.SetFloat("speed", Mathf.Abs(speed * movement));
+        Debug.Log(speed);
     }
     private void Move(float x)
     {
         rb.velocity = new Vector2(x * speed, rb.velocity.y);
     }
-    void OnJump()
+    private void OnJump()
     {
         if (isGrounded)
         {
@@ -61,8 +58,8 @@ private bool facingRight = true;
         // To add
         animator.SetBool("IsJumping", true);
     }
-    // Consider adding a bool for negative downward velocity in order to determine isFalling
-void OnCollisionExit2D(Collision2D other)
+    // Consider adding a bool for negative downward velocity in order to determineisFalling
+    private void OnCollisionExit2D(Collision2D other)
     {
         isGrounded = false;
     }
